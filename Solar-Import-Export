@@ -1,0 +1,36 @@
+  - platform: template
+    sensors:
+
+      # Template sensor for values of power import (active_power > 0)
+      power_import:
+        friendly_name: "Power Import"
+        unit_of_measurement: 'W'
+        value_template: >-
+          {% if (states('sensor.power_meter_phase_a_active_power')|float + states('sensor.power_meter_phase_b_active_power')|float + states('sensor.power_meter_phase_c_active_power')|float) < 0 %}
+            {{ (states('sensor.power_meter_phase_a_active_power')|float + states('sensor.power_meter_phase_b_active_power')|float + states('sensor.power_meter_phase_c_active_power')|float) * -1 }}
+          {% else %}
+            {{ 0 }}
+          {% endif %}
+        availability_template: "{{
+            [ states('sensor.power_meter_phase_a_active_power'),
+              states('sensor.power_meter_phase_b_active_power'),
+              states('sensor.power_meter_phase_c_active_power')
+            ] | map('is_number') | min
+          }}"
+
+      # Template sensor for values of power export (active_power > 0)
+      power_export:
+        friendly_name: "Power Export"
+        unit_of_measurement: 'W'
+        value_template: >-
+          {% if (states('sensor.power_meter_phase_a_active_power')|float + states('sensor.power_meter_phase_b_active_power')|float + states('sensor.power_meter_phase_c_active_power')|float) > 0 %}
+            {{ (states('sensor.power_meter_phase_a_active_power')|float + states('sensor.power_meter_phase_b_active_power')|float + states('sensor.power_meter_phase_c_active_power')|float) }}
+          {% else %}
+            {{ 0 }}
+          {% endif %}
+        availability_template: "{{
+            [ states('sensor.power_meter_phase_a_active_power'),
+              states('sensor.power_meter_phase_b_active_power'),
+              states('sensor.power_meter_phase_c_active_power')
+            ] | map('is_number') | min
+          }}"
